@@ -12,16 +12,67 @@
 mvn clean install
 mvn spring-boot:run
 ```
+Por defecto la app corre sin perfil activo, usando persistencia **en memoria**. Todas las respuestas
+vienen envueltas en `ApiResponse<T>` (`{ "code", "message", "data" }`) y la ruta base es `/api/v1/blueprints`.
+
 Probar con `curl`:
 ```bash
-curl -s http://localhost:8080/blueprints | jq
-curl -s http://localhost:8080/blueprints/john | jq
-curl -s http://localhost:8080/blueprints/john/house | jq
-curl -i -X POST http://localhost:8080/blueprints -H 'Content-Type: application/json' -d '{ "author":"john","name":"kitchen","points":[{"x":1,"y":1},{"x":2,"y":2}] }'
-curl -i -X PUT  http://localhost:8080/blueprints/john/kitchen/points -H 'Content-Type: application/json' -d '{ "x":3,"y":3 }'
+curl -s http://localhost:8080/api/v1/blueprints | jq
+curl -s http://localhost:8080/api/v1/blueprints/john | jq
+curl -s http://localhost:8080/api/v1/blueprints/john/house | jq
+curl -i -X POST http://localhost:8080/api/v1/blueprints -H 'Content-Type: application/json' -d '{ "author":"john","name":"kitchen","points":[{"x":1,"y":1},{"x":2,"y":2}] }'
+curl -i -X PUT  http://localhost:8080/api/v1/blueprints/john/kitchen/points -H 'Content-Type: application/json' -d '{ "x":3,"y":3 }'
 ```
 
-> Si deseas activar filtros de puntos (reducción de redundancia, *undersampling*, etc.), implementa nuevas clases que implementen `BlueprintsFilter` y cámbialas por `IdentityFilter` con `@Primary` o usando configuración de Spring.
+> Para activar filtros de puntos usa los perfiles de Spring `redundancy` o `undersampling`
+> (ver sección [Filtros de Blueprints](#5-filtros-de-blueprints)).
+---
+
+## 🐘 Persistencia en PostgreSQL
+
+Por defecto la app usa `InMemoryBlueprintPersistence`. Para usar `PostgresBlueprintPersistence`
+(misma interfaz `BlueprintPersistence`, sin cambios en servicios/controladores):
+
+1. Levanta un PostgreSQL local con Docker Compose (incluido en el repo):
+   ```bash
+   docker compose up -d
+   ```
+   Esto crea una base `blueprints` con usuario/clave `blueprints`/`blueprints` en el puerto 5432.
+
+2. Corre la aplicación con el perfil `postgres` activo:
+   ```bash
+   mvn spring-boot:run -Dspring-boot.run.profiles=postgres
+   ```
+   Las tablas (`blueprints`, `blueprint_points`) se crean automáticamente desde
+   `src/main/resources/schema.sql` en cada arranque (sentencias `IF NOT EXISTS`, idempotentes).
+
+3. Si tu base de datos no corre en `localhost:5432` con esas credenciales, sobreescribe con
+   variables de entorno antes de arrancar: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
+   (ver `application-postgres.properties`).
+
+4. Verifica los datos directamente en la base:
+   ```bash
+   docker exec -it blueprints-postgres psql -U blueprints -d blueprints -c "SELECT * FROM blueprints;"
+   docker exec -it blueprints-postgres psql -U blueprints -d blueprints -c "SELECT * FROM blueprint_points;"
+   ```
+---
+
+## 📦 Formato de respuesta uniforme (`ApiResponse<T>`)
+
+Todos los endpoints devuelven el mismo sobre de respuesta:
+```json
+{ "code": 200, "message": "execute ok", "data": { "author": "john", "name": "house", "points": [...] } }
+```
+
+Códigos usados:
+- `200 OK` — consultas exitosas (GET).
+- `201 Created` — creación de blueprint (POST).
+- `202 Accepted` — actualización de puntos (PUT).
+- `400 Bad Request` — validación fallida o blueprint duplicado.
+- `404 Not Found` — autor/blueprint inexistente.
+
+Estos casos se manejan de forma centralizada en `ApiExceptionHandler`
+(`@RestControllerAdvice`), evitando repetir `try/catch` en cada endpoint del controller.
 ---
 
 Abrir en navegador:  
@@ -35,11 +86,13 @@ Abrir en navegador:
 ```
 src/main/java/edu/eci/arsw/blueprints
   ├── model/         # Entidades de dominio: Blueprint, Point
-  ├── persistence/   # Interfaz + repositorios (InMemory, Postgres)
-  │    └── impl/     # Implementaciones concretas
+  ├── dto/           # DTOs de entrada/salida: NewBlueprintRequest, ApiResponse<T>
+  ├── persistence/   # Interfaz + excepciones (BlueprintPersistence, ...)
+  │    └── impl/     # Implementaciones concretas: InMemory, Postgres
   ├── services/      # Lógica de negocio y orquestación
   ├── filters/       # Filtros de procesamiento (Identity, Redundancy, Undersampling)
   ├── controllers/   # REST Controllers (BlueprintsAPIController)
+  ├── web/           # Manejo centralizado de errores (ApiExceptionHandler)
   └── config/        # Configuración (Swagger/OpenAPI, etc.)
 ```
 
@@ -120,5 +173,5 @@ src/main/java/edu/eci/arsw/blueprints
 
 **Bonus**:  
 
-- Imagen de contenedor (`spring-boot:build-image`).  
-- Métricas con Actuator.  
+- Imagen de contenedor (`spring-boot:build-image`) — ver Dockerfile incluido, o el plugin de Spring Boot.
+- Métricas con Actuator — ya habilitado (`/actuator/health`, `/actuator/info`, `/actuator/metrics`).  

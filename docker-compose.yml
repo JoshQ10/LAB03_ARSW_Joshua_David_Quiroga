@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: blueprints-postgres
+    environment:
+      POSTGRES_DB: blueprints
+      POSTGRES_USER: blueprints
+      POSTGRES_PASSWORD: blueprints
+    ports:
+      - "5432:5432"
+    volumes:
+      - blueprints-pgdata:/var/lib/postgresql/data
+
+volumes:
+  blueprints-pgdata:
