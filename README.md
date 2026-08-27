@@ -40,9 +40,15 @@ Por defecto la app usa `InMemoryBlueprintPersistence`. Para usar `PostgresBluepr
    Esto crea una base `blueprints` con usuario/clave `blueprints`/`blueprints` en el puerto 5432.
 
 2. Corre la aplicación con el perfil `postgres` activo:
+   ```powershell
+   # PowerShell
+   mvn spring-boot:run "-Dspring-boot.run.profiles=postgres"
+   ```
    ```bash
+   # bash / Linux / macOS
    mvn spring-boot:run -Dspring-boot.run.profiles=postgres
    ```
+
    Las tablas (`blueprints`, `blueprint_points`) se crean automáticamente desde
    `src/main/resources/schema.sql` en cada arranque (sentencias `IF NOT EXISTS`, idempotentes).
 
@@ -158,6 +164,19 @@ src/main/java/edu/eci/arsw/blueprints
    - Informe de laboratorio con instrucciones claras.  
    - Evidencia de consultas en Swagger UI y evidencia de mensajes en la base de datos.  
    - Breve explicación de buenas prácticas aplicadas.  
+
+---
+
+## 🖼️ Evidencias
+
+| Evidencia | Captura |
+|---|---|
+| Swagger UI con los endpoints versionados (`/api/v1/blueprints`) y los schemas de `ApiResponse<T>` generados (`ApiResponseBlueprint`, `ApiResponseSetBlueprint`, `ApiResponseVoid`) | ![Swagger UI](docs/evidence/swagger-ui.png) |
+| PostgreSQL levantado con `docker compose up -d` (contenedor `blueprints-postgres`) | ![docker compose up](docs/evidence/docker-compose-up.png) |
+
+> Faltan por agregar: capturas de `curl -i` mostrando los códigos HTTP (200/201/202/400/404) y
+> del `SELECT * FROM blueprints;` / `SELECT * FROM blueprint_points;` corriendo con el perfil
+> `postgres` activo — guárdalas también en `docs/evidence/` y agrégalas a esta tabla.
 
 ---
 
