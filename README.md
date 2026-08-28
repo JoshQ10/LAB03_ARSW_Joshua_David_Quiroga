@@ -167,6 +167,29 @@ src/main/java/edu/eci/arsw/blueprints
 
 ---
 
+## 🧭 Buenas prácticas aplicadas
+
+- **Versionamiento de API**: todos los endpoints viven bajo `/api/v1/blueprints`, aislando a los
+  clientes de futuros cambios incompatibles en versiones posteriores.
+- **DTOs separados del modelo de dominio**: `NewBlueprintRequest` valida la entrada (`@NotBlank`)
+  sin acoplar el modelo `Blueprint`/`Point` a la forma del JSON de entrada.
+- **Respuesta uniforme (`ApiResponse<T>`)**: todo endpoint responde `{ code, message, data }`,
+  facilitando el consumo predecible desde cualquier cliente.
+- **Manejo de errores centralizado**: `ApiExceptionHandler` (`@RestControllerAdvice`) traduce las
+  excepciones de negocio y validación a los códigos HTTP correctos (400/404), evitando repetir
+  `try/catch` en cada método del controller.
+- **Inversión de dependencias en la persistencia**: `BlueprintsServices` y el controller dependen
+  solo de la interfaz `BlueprintPersistence`; cambiar de memoria a PostgreSQL es cuestión de activar
+  el perfil `postgres` de Spring, sin tocar una sola línea de la capa de servicios o controladores.
+- **Separación en capas**: `model`, `dto`, `persistence` (+ `impl`), `services`, `filters`,
+  `controllers` y `web` mantienen cada responsabilidad aislada y fácil de ubicar.
+- **Documentación autogenerada**: Swagger/OpenAPI (`springdoc-openapi`) expone y describe cada
+  endpoint automáticamente a partir del propio código (`@Operation`, `@ApiResponse`, `@Tag`).
+- **Pruebas automatizadas**: unitarias para la lógica de los filtros y de integración (`MockMvc`)
+  para el controller, cubriendo los casos 200/201/202/400/404.
+
+---
+
 ## 🖼️ Evidencias
 
 Organizadas según lo pedido en **Entregables → 2. Documentación**: evidencia de consultas en
