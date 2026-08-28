@@ -241,4 +241,11 @@ Swagger UI y evidencia de mensajes en la base de datos, todo corriendo con el pe
 **Bonus**:  
 
 - Imagen de contenedor (`spring-boot:build-image`) — ver Dockerfile incluido, o el plugin de Spring Boot.
-- Métricas con Actuator — ya habilitado (`/actuator/health`, `/actuator/info`, `/actuator/metrics`).  
+  <img width="861" height="149" alt="image" src="https://github.com/user-attachments/assets/c213ec84-35f9-4a1c-a156-20b459c2096e" />
+  
+  Se muestran cambios desde consola debido a que hubo problemas de compatibilidad con docker desktop. Sin embargo cumple la misma funcionalidad
+
+- Métricas con Actuator — ya habilitado (`/actuator/health`, `/actuator/info`, `/actuator/metrics`).
+  <img width="496" height="123" alt="image" src="https://github.com/user-attachments/assets/1582c192-d9f3-438c-8902-b278ec24ee3e" />
+
+
