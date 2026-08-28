@@ -186,6 +186,12 @@ Base de datos funcional Docker: <img width="1011" height="600" alt="image" src="
  |
 | PostgreSQL levantado con `docker compose up -d` (contenedor `blueprints-postgres`) | <img width="1028" height="696" alt="image" src="https://github.com/user-attachments/assets/351e1f0d-4a5f-4e2e-9907-e6f078f9d156" />
  |
+ 
+GET RedundancyFilter: <img width="1429" height="1275" alt="image" src="https://github.com/user-attachments/assets/0ec4cee4-c22b-49c2-94fa-19a303ecda4c" />
+GET UndersamplingFilter: <img width="1427" height="1276" alt="image" src="https://github.com/user-attachments/assets/c792ec26-b0d4-4ce3-9101-22337870a110" />
+
+
+
 
 > Faltan por agregar: capturas de `curl -i` mostrando los códigos HTTP (200/201/202/400/404) y
 > del `SELECT * FROM blueprints;` / `SELECT * FROM blueprint_points;` corriendo con el perfil
