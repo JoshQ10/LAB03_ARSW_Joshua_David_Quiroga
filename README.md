@@ -169,27 +169,39 @@ src/main/java/edu/eci/arsw/blueprints
 
 ## 🖼️ Evidencias
 
+Organizadas según lo pedido en **Entregables → 2. Documentación**: evidencia de consultas en
+Swagger UI y evidencia de mensajes en la base de datos, todo corriendo con el perfil `postgres` activo.
+
+### Despliegue de PostgreSQL (Docker Compose)
+
 | Evidencia | Captura |
 |---|---|
-| Swagger UI con los endpoints versionados (`/api/v1/blueprints`) y los schemas de `ApiResponse<T>` generados (`ApiResponseBlueprint`, `ApiResponseSetBlueprint`, `ApiResponseVoid`) | POST: <img width="1426" height="1219" alt="image" src="https://github.com/user-attachments/assets/15ab5eca-507e-4453-96c5-100d39f2a98e" />
-GET: <img width="1429" height="1184" alt="image" src="https://github.com/user-attachments/assets/4ec9791b-a12e-4b0b-9f09-4a7b2b87a3fd" />
-GET: <img width="1433" height="1158" alt="image" src="https://github.com/user-attachments/assets/3da887b5-71a1-4144-875d-55b600f5168f" />
-GET: <img width="1423" height="1263" alt="image" src="https://github.com/user-attachments/assets/f2945da8-17ea-432e-a961-92c24f8cf839" />
-PUT: <img width="1429" height="1267" alt="image" src="https://github.com/user-attachments/assets/c231119d-12d8-4f6a-bfda-55159f6153d1" />
-POST ya creado: <img width="1427" height="1255" alt="image" src="https://github.com/user-attachments/assets/cffcaee9-9301-4667-bf56-a702ccdee5c4" />
-GET que no hay: <img width="1424" height="1065" alt="image" src="https://github.com/user-attachments/assets/b03fd555-1b3c-4ee2-99a6-d046ba14f12c" />
+| `docker compose up -d` levantando el contenedor `blueprints-postgres` | <img width="1028" height="696" alt="docker compose up" src="https://github.com/user-attachments/assets/351e1f0d-4a5f-4e2e-9907-e6f078f9d156" /> |
 
-Base de datos funcional Docker: <img width="1011" height="600" alt="image" src="https://github.com/user-attachments/assets/36406d59-7417-4560-bada-24b4a5ad0008" />
+### Consultas en Swagger UI — códigos HTTP
 
+| Código | Endpoint / caso | Captura |
+|---|---|---|
+| `201 Created` | `POST /api/v1/blueprints` — crear `john/house` | <img width="1426" height="1219" alt="POST creado" src="https://github.com/user-attachments/assets/15ab5eca-507e-4453-96c5-100d39f2a98e" /> |
+| `200 OK` | `GET /api/v1/blueprints` — listar todos | <img width="1429" height="1184" alt="GET todos" src="https://github.com/user-attachments/assets/4ec9791b-a12e-4b0b-9f09-4a7b2b87a3fd" /> |
+| `200 OK` | `GET /api/v1/blueprints/{author}` — por autor | <img width="1433" height="1158" alt="GET por autor" src="https://github.com/user-attachments/assets/3da887b5-71a1-4144-875d-55b600f5168f" /> |
+| `200 OK` | `GET /api/v1/blueprints/{author}/{bpname}` — por autor y nombre | <img width="1423" height="1263" alt="GET por autor y nombre" src="https://github.com/user-attachments/assets/f2945da8-17ea-432e-a961-92c24f8cf839" /> |
+| `202 Accepted` | `PUT /api/v1/blueprints/{author}/{bpname}/points` — agregar punto | <img width="1429" height="1267" alt="PUT punto agregado" src="https://github.com/user-attachments/assets/c231119d-12d8-4f6a-bfda-55159f6153d1" /> |
+| `400 Bad Request` | `POST` con `author`/`name` que ya existen (`john/house` duplicado) | <img width="1427" height="1255" alt="POST duplicado" src="https://github.com/user-attachments/assets/cffcaee9-9301-4667-bf56-a702ccdee5c4" /> |
+| `404 Not Found` | `GET` a un autor/blueprint inexistente | <img width="1424" height="1065" alt="GET no encontrado" src="https://github.com/user-attachments/assets/b03fd555-1b3c-4ee2-99a6-d046ba14f12c" /> |
 
+### Datos persistidos en PostgreSQL
 
- |
-| PostgreSQL levantado con `docker compose up -d` (contenedor `blueprints-postgres`) | <img width="1028" height="696" alt="image" src="https://github.com/user-attachments/assets/351e1f0d-4a5f-4e2e-9907-e6f078f9d156" />
- |
+| Evidencia | Captura |
+|---|---|
+| `SELECT * FROM blueprints;` / `SELECT * FROM blueprint_points;` vía Docker Desktop (Exec) | <img width="1011" height="600" alt="SELECT en la base de datos" src="https://github.com/user-attachments/assets/36406d59-7417-4560-bada-24b4a5ad0008" /> |
 
-> Faltan por agregar: capturas de `curl -i` mostrando los códigos HTTP (200/201/202/400/404) y
-> del `SELECT * FROM blueprints;` / `SELECT * FROM blueprint_points;` corriendo con el perfil
-> `postgres` activo — guárdalas también en `docs/evidence/` y agrégalas a esta tabla.
+### Filtros de Blueprints (`redundancy` / `undersampling`)
+
+| Perfil | Caso | Captura |
+|---|---|---|
+| `redundancy` | `GET /api/v1/blueprints/{author}/{bpname}` — puntos duplicados consecutivos eliminados | <img width="1429" height="1275" alt="GET RedundancyFilter" src="https://github.com/user-attachments/assets/0ec4cee4-c22b-49c2-94fa-19a303ecda4c" /> |
+| `undersampling` | `GET /api/v1/blueprints/{author}/{bpname}` — solo puntos en posiciones pares | <img width="1427" height="1276" alt="GET UndersamplingFilter" src="https://github.com/user-attachments/assets/c792ec26-b0d4-4ce3-9101-22337870a110" /> |
 
 ---
 
